@@ -1,0 +1,481 @@
+Customer
+
+import java.sql.*;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+public class CustomerJFrame extends javax.swing.JFrame {
+
+    
+    public CustomerJFrame() {
+        initComponents();  // NetBeans generated code
+
+    // 1️⃣ Initialize the JTable model here
+    DefaultTableModel model = new DefaultTableModel(
+        new String[]{"customerid", "fullname", "email", "phone", "address"}, 0
+    );
+    customertable.setModel(model);
+
+    // 2️⃣ Connect to database
+    Connect();
+
+    // 3️⃣ Load records from database
+    loadTable();
+    }
+        
+    
+    Connection con;
+    PreparedStatement pst;
+    ResultSet rs;
+    
+    public void Connect(){
+    
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost/marketdb", "root", "");
+            System.out.println("Connected to Database");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(CustomerJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    
+    }
+    
+    private void loadTable(){
+    
+        try {
+        String sql = "SELECT * FROM customers";  // <-- your table name
+            pst = con.prepareStatement(sql);
+            rs = pst.executeQuery();
+
+            DefaultTableModel model = (DefaultTableModel) customertable.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("customerid"),
+                    rs.getString("fullname"),
+                    rs.getString("email"),
+                    rs.getString("phone"),
+                    rs.getString("address")
+                };
+                model.addRow(row);
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    
+    }
+
+    
+    
+
+    private void btnInsertActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        try {
+            String fullname = txtFullName.getText();
+            String email = txtEmail.getText();
+            String phone = txtPhone.getText();
+            String address = txtAddress.getText();
+            
+            pst = con.prepareStatement("INSERT INTO customers(fullname, email, phone, address) VALUES(?,?,?,?)");
+            pst.setString(1, fullname);
+            pst.setString(2, email);
+            pst.setString(3, phone);
+            pst.setString(4, address);
+
+        pst.executeUpdate();
+        JOptionPane.showMessageDialog(this, "Record Inserted Successfully!");
+        loadTable();
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }                                         
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        try {
+            int customerid = Integer.parseInt(txtCustomerID.getText());
+            String fullname = txtFullName.getText();
+            String email = txtEmail.getText();
+            String phone = txtPhone.getText();
+            String address = txtAddress.getText();
+            
+            
+            pst = con.prepareStatement("UPDATE customers SET fullname=?, email=?, phone=?, address=? WHERE customerid=?");
+            pst.setString(1, fullname);
+            pst.setString(2, email);
+            pst.setString(3, phone);
+            pst.setString(4, address);
+            pst.setInt(5, customerid);
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Record Updated Successfully!");
+            loadTable();
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                         
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        try {
+            int customerid = Integer.parseInt(txtCustomerID.getText());
+            pst = con.prepareStatement("DELETE FROM customers WHERE customerid=?");
+            pst.setInt(1, customerid);
+            pst.executeUpdate();
+
+            JOptionPane.showMessageDialog(this, "Record Deleted Successfully!");
+            loadTable();
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }                                         
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        txtCustomerID.setText("");
+        txtFullName.setText("");
+        txtEmail.setText("");
+        txtPhone.setText("");
+        txtAddress.setText("");
+        
+    }                                        
+
+    private void customertableMouseClicked(java.awt.event.MouseEvent evt) {                                           
+        DefaultTableModel model = (DefaultTableModel) customertable.getModel();
+    int selectedRow = customertable.getSelectedRow();
+
+    txtCustomerID.setText(model.getValueAt(selectedRow, 0).toString());
+    txtFullName.setText(model.getValueAt(selectedRow, 1).toString());
+    txtEmail.setText(model.getValueAt(selectedRow, 2).toString());
+    txtPhone.setText(model.getValueAt(selectedRow, 3).toString());
+    txtAddress.setText(model.getValueAt(selectedRow, 4).toString());
+
+    try {
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    }                                          
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        dispose();
+    }   
+
+
+
+    Order
+
+import java.sql.*;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+public class OrderJFrame extends javax.swing.JFrame {
+
+    
+    public OrderJFrame() {
+        initComponents();  // NetBeans generated code
+
+    // 1️⃣ Initialize the JTable model here
+    DefaultTableModel model = new DefaultTableModel(
+        new String[]{"orderid", "orderdate", "customername", "productname", "quantity", "totalamount", "paymentmethod"}, 0
+    );
+    ordertable.setModel(model);
+
+    // 2️⃣ Connect to database
+    Connect();
+
+    // 3️⃣ Load records from database
+    loadTable2();
+    }
+        
+    
+    Connection con;
+    PreparedStatement pst;
+    ResultSet rs;
+    
+    public void Connect(){
+    
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost/marketdb", "root", "");
+            System.out.println("Connected to Database");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(OrderJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(OrderJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    
+    }
+    
+    private void loadTable2(){
+    
+        try {
+        String sql = "SELECT * FROM orders";  // <-- your table name
+            pst = con.prepareStatement(sql);
+            rs = pst.executeQuery();
+
+            DefaultTableModel model = (DefaultTableModel) ordertable.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("orderid"),
+                    rs.getDate("orderdate"),
+                    rs.getString("customername"),
+                    rs.getString("productname"),
+                    rs.getInt("quantity"),
+                    rs.getInt("totalamount"),
+                    rs.getString("paymentmethod")
+                };
+                model.addRow(row);
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(OrderJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    
+    }
+
+
+
+    private void btnInsertActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String orderdate = sdf.format(jOrderDate.getDate());
+            String customername = txtCustomerName.getText();
+            String productname = txtOProductName.getText();
+            int quantity = Integer.parseInt(txtOrderQuantity.getText());
+            double totalamount = Double.parseDouble(txtTotalAmount.getText());
+            String paymentmethod = txtPaymentMethod.getText();
+            
+            pst = con.prepareStatement("INSERT INTO orders(orderdate, customername, productname, quantity, totalamount, paymentmethod) VALUES(?,?,?,?,?,?)");
+            pst.setString(1, orderdate);
+            pst.setString(2, customername);
+            pst.setString(3, productname);
+            pst.setInt(4, quantity);
+            pst.setDouble(5, totalamount);
+            pst.setString(6, paymentmethod);
+
+        pst.executeUpdate();
+        JOptionPane.showMessageDialog(this, "Record Inserted Successfully!");
+        loadTable2();
+        } catch (SQLException ex) {
+            Logger.getLogger(OrderJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }                                         
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        try {
+            int orderid = Integer.parseInt(txtOrderID.getText());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String orderdate = sdf.format(jOrderDate.getDate());
+            String customername = txtCustomerName.getText();
+            String productname = txtOProductName.getText();
+            int quantity = Integer.parseInt(txtOrderQuantity.getText());
+            double totalamount = Double.parseDouble(txtTotalAmount.getText());
+            String paymentmethod = txtPaymentMethod.getText();
+            
+            
+            pst = con.prepareStatement("UPDATE orders SET orderdate=?, customername=?, productname=?, quantity=?, totalamount=?, paymentmethod=? WHERE orderid=?");
+            pst.setString(1, orderdate);
+            pst.setString(2, customername);
+            pst.setString(3, productname);
+            pst.setInt(4, quantity);
+            pst.setDouble(5, totalamount);
+            pst.setString(6, paymentmethod);
+            pst.setInt(7, orderid);
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Record Updated Successfully!");
+            loadTable2();
+        } catch (SQLException ex) {
+            Logger.getLogger(OrderJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                         
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        try {
+            int orderid = Integer.parseInt(txtOrderID.getText());
+            pst = con.prepareStatement("DELETE FROM orders WHERE orderid=?");
+            pst.setInt(1, orderid);
+            pst.executeUpdate();
+
+            JOptionPane.showMessageDialog(this, "Record Deleted Successfully!");
+            loadTable2();
+        } catch (SQLException ex) {
+            Logger.getLogger(OrderJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }                                         
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        txtOrderID.setText("");
+        jOrderDate.setDate(null);
+        txtCustomerName.setText("");
+        txtOProductName.setText("");
+        txtOrderQuantity.setText("");
+        txtTotalAmount.setText("");
+        txtPaymentMethod.setText("");
+        
+    }                                        
+
+    private void ordertableMouseClicked(java.awt.event.MouseEvent evt) {                                        
+        DefaultTableModel model = (DefaultTableModel) ordertable.getModel();
+        int selectedIndex = ordertable.getSelectedRow();
+
+        txtOrderID.setText(model.getValueAt(selectedIndex, 0).toString());
+        try {
+            java.util.Date date = new SimpleDateFormat("yyyy-MM-dd")
+                    .parse(model.getValueAt(selectedIndex, 1).toString());
+            jOrderDate.setDate(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        txtCustomerName.setText(model.getValueAt(selectedIndex, 2).toString());
+        txtOProductName.setText(model.getValueAt(selectedIndex, 3).toString());
+        txtOrderQuantity.setText(model.getValueAt(selectedIndex, 4).toString());
+        txtTotalAmount.setText(model.getValueAt(selectedIndex, 5).toString());
+        txtPaymentMethod.setText(model.getValueAt(selectedIndex, 6).toString());
+    
+
+    }                                       
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        dispose();
+    }                                    
+
+
+
+
+
+    Dashboard Code
+
+    public class DashboardJFrame extends javax.swing.JFrame {
+
+    
+    public DashboardJFrame() {
+        initComponents();
+        display1();
+        display2();
+        display3();
+        
+    }
+    
+    private void display1(){
+        Connection con = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        
+        
+        try {
+            // Establish connection
+            con = DriverManager.getConnection("jdbc:mysql://localhost/marketdb","root","");
+            statement = con.createStatement();
+
+            // Execute query
+            String query = "SELECT COUNT(*) AS total FROM customers";
+            resultSet = statement.executeQuery(query);
+
+            // Process result
+            if (resultSet.next()) {
+                int count = resultSet.getInt("total");
+                Count1.setText("Total Customers: " + count);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Count1.setText("Error fetching count");
+        } finally {
+            // Close resources
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (con != null) con.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    
+    
+    
+    private void display2(){
+        Connection con = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        
+        
+        try {
+            // Establish connection
+            con = DriverManager.getConnection("jdbc:mysql://localhost/marketdb","root","");
+            statement = con.createStatement();
+
+            // Execute query
+            String query = "SELECT COUNT(*) AS total FROM products";
+            resultSet = statement.executeQuery(query);
+
+            // Process result
+            if (resultSet.next()) {
+                int count = resultSet.getInt("total");
+                Count2.setText("Total Products: " + count);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Count2.setText("Error fetching count");
+        } finally {
+            // Close resources
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (con != null) con.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    
+    private void display3(){
+        Connection con = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        
+        
+        try {
+            // Establish connection
+            con = DriverManager.getConnection("jdbc:mysql://localhost/marketdb","root","");
+            statement = con.createStatement();
+
+            // Execute query
+            String query = "SELECT COUNT(*) AS total FROM orders";
+            resultSet = statement.executeQuery(query);
+
+            // Process result
+            if (resultSet.next()) {
+                int count = resultSet.getInt("total");
+                Count3.setText("Total Orders: " + count);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Count3.setText("Error fetching count");
+        } finally {
+            // Close resources
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (con != null) con.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }                                     
